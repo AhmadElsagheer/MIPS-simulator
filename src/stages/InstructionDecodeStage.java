@@ -22,11 +22,11 @@ public class InstructionDecodeStage extends Stage{
 		RegisterFile regFile = simulator.getRegisterFile();
 
 		// decode it.
-		int opcode = instructionReg.getSegment(26, 31);
-		int regT = instructionReg.getSegment(16, 20);
-		int immValue = instructionReg.getSegment(0, 15);
-		int regS = instructionReg.getSegment(21, 25);
-		int shamt = instructionReg.getSegment(6, 10);
+		int opcode = instructionReg.getSegment(31, 26);
+		int regT = instructionReg.getSegment(20, 16);
+		int immValue = instructionReg.getSegment(15, 0);
+		int regS = instructionReg.getSegment(25, 21);
+		int shamt = instructionReg.getSegment(10, 6);
 
 		// call writeControlFlags method to write control flags into next
 		// pipeline register and pass the opcode to int
@@ -34,8 +34,8 @@ public class InstructionDecodeStage extends Stage{
 		// write register segments into next pipeline register
 		if (opcode == 0) // R - type
 		{
-			int ALUOp = instructionReg.getSegment(0, 5);
-			int regD = instructionReg.getSegment(11, 15);
+			int ALUOp = instructionReg.getSegment(5, 0);
+			int regD = instructionReg.getSegment(15, 11);
 			simulator.getIDtoEx().setRegister("ALUOp", ALUOp);
 			// sign extend
 			simulator.getIDtoEx().setRegister("ImmediateValue", shamt);
