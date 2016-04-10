@@ -23,7 +23,7 @@ public class InstructionMemory {
 		instructions[index] = value;
 	}
 	
-	
+	//who needs it?
 	public void setInstructions(int[] instructions)
 	{
 		this.instructions = instructions;

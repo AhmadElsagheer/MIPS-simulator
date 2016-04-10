@@ -9,6 +9,7 @@ public class PipelineRegister {
 	
 	public PipelineRegister(int type)
 	{
+		registers = new HashMap<String, Register>();
 		//initialize registers according to type
 		if(type == 0)
 		{

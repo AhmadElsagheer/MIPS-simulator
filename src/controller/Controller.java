@@ -1,44 +1,55 @@
 package controller;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Scanner;
 
 public class Controller {
 	
 	private Simulator simulator;
+	private Parser parser;
 	
-	public Controller(String fileName) throws FileNotFoundException
+	public Controller() throws FileNotFoundException
 	{
 		simulator = new Simulator();
-		this.parse(fileName);
+		parser = new Parser();
 	}
 	
-	private void parse(String fileName) throws FileNotFoundException
-	{
-		Scanner sc = new Scanner(new FileReader(fileName));
-	}
+	public Simulator getSimulator() { return simulator; }
 	
-	public void simulate()
-	{
-		simulator.run();
-	}
+	public Parser getParser() { return parser; }
 	
-	public static void main(String[] args) throws FileNotFoundException 
+	public static void main(String[] args) throws Exception 
 	{
 		Scanner sc = new Scanner(System.in);
 		
+		Controller controller = new Controller();
+		
 		while(true)
-		{
-			System.out.print("Enter the path to the file to run: ");
+		{	
+			System.out.print("Enter the path to the program to run: ");
 			String fileName = sc.nextLine();
 			System.out.println("Compiling...");
-			Controller controller = new Controller(fileName);
+			if(!controller.getParser().parse(fileName, controller.getSimulator()))
+			{
+				//better handled with exceptions
+				System.out.println("File contains bad commands");
+				continue;
+			}
 			System.out.println("Choose one of the following options => R (run), E (exit): ");
 			if(sc.next().charAt(0) == 'E')
 				break;
-			controller.simulate();
+			//Initial simulation
+			while(true)
+			{
+				controller.getSimulator().run();
+				System.out.print("Restart? (Y/N): ");
+				if(sc.next().charAt(0) != 'Y')
+					break;
+			}
+			
 		}		
+		
+		sc.close();
 	}
 
 }
