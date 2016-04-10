@@ -42,6 +42,9 @@ public class Simulator {
 		return IDtoEx;
 	}
 	
+	public PipelineRegister getIFtoID() {
+		return IFtoID;
+	}
 	
 	
 	void runSimulation(String pathToFile)
