@@ -96,9 +96,35 @@ public class ExecutionStage extends Stage{
 		return ALUSelector;
 	}
 	
+	/**
+	 * Takes the ALU sources and the selector, performs arithmetic/logic operation, and writes
+	 * into next pipeline register
+	 * @param source1
+	 * @param source2
+	 * @param control
+	 */
 	public void ALU(int source1, int source2, int control)
 	{
+		int ALUResult = 0;
+		int zeroFlag = 0;
 		
+		// Perform the operation
+		switch (control)
+		{
+		case 0: ALUResult = source1 & source2; break;
+		case 1: ALUResult = source1 | source2; break;
+		case 2: ALUResult = source1 + source2; break;
+		case 6: ALUResult = source1 - source2; break;
+		case 7: ALUResult = (source1 < source2) ? 1 : 0; break;
+		}
+		
+		// Assign the value of the zero flag
+		if(ALUResult == 0)
+			zeroFlag = 1;
+		
+		// Set the registers values in the next pipeline register
+		simulator.getExtoMem().getRegister("ALUResult").setValue(ALUResult);
+		simulator.getExtoMem().getRegister("Zero").setValue(zeroFlag);
 	}
 	
 	
