@@ -3,6 +3,10 @@ package units;
 public class InstructionMemory {
 	int[] instructions;
 	
+	/**
+	 * Constructs a new instruction memory with the specified size
+	 * @param size the maximum number of instructions the memory can hold
+	 */
 	public InstructionMemory(int size)
 	{
 		instructions = new int[size];
