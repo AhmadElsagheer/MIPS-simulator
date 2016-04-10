@@ -3,7 +3,8 @@ package stages;
 import controller.Simulator;
 
 public abstract class Stage {
-	Simulator simulator;
+	
+	protected Simulator simulator;
 	
 	public Stage(Simulator simulator)
 	{

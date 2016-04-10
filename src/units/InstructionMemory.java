@@ -1,6 +1,7 @@
 package units;
 
 public class InstructionMemory {
+	
 	int[] instructions;
 	
 	/**
@@ -15,12 +16,12 @@ public class InstructionMemory {
 	
 	public int getInstruction(int index)
 	{
-		return instructions[index];
+		return instructions[index/4];
 	}
 	
 	public void setInstruction(int index, int value)
 	{
-		instructions[index] = value;
+		instructions[index/4] = value;
 	}
 	
 	//who needs it?

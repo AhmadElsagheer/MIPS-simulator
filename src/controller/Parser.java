@@ -159,14 +159,8 @@ public class Parser {
 		while(sc.hasNextLine())
 		{		
 			String[] assembly = filterTokens(sc.nextLine().trim().split(" |,"));
-				
-			int instruction = parse(assembly);
-			if(instruction == -1)
-			{	
-				sc.close();
-				return false;
-			}
-			simulator.getInstructionMemory().setInstruction(counter, instruction);
+			simulator.getInstructionMemory().setInstruction(counter, parse(assembly));
+			counter += 4;
 		}
 		sc.close();
 		return true;

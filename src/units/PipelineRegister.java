@@ -1,13 +1,19 @@
 package units;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class PipelineRegister {
 	
 	private HashMap<String, Register> registers;
-	
+	private PipelineRegister tmpRegister;
 	
 	public PipelineRegister(int type)
+	{
+		this(type, false);
+	}
+	
+	public PipelineRegister(int type, boolean fake)
 	{
 		registers = new HashMap<String, Register>();
 		//initialize registers according to type
@@ -57,6 +63,8 @@ public class PipelineRegister {
 
 		registers = new HashMap<String, Register>();
 		
+		if(!fake)
+			tmpRegister = new PipelineRegister(type, true);
 	}
 	
 	public Register getRegister(String registerName)
@@ -66,7 +74,17 @@ public class PipelineRegister {
 	
 	public void setRegister(String registerName, int value)
 	{
-		registers.get(registerName).setValue(value);
+		tmpRegister.setRegister(registerName, value);
+	}
+	
+	public void update()
+	{
+		for(Entry<String, Register> entry: registers.entrySet())
+		{
+			String registerName = entry.getKey();
+			registers.get(registerName).setValue(tmpRegister.getRegister(registerName).getValue());
+			tmpRegister.getRegister(registerName).clear();
+		}
 	}
 	
 }
