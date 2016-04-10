@@ -2,6 +2,7 @@ package stages;
 
 import controller.Simulator;
 import units.Register;
+import units.RegisterFile;
 
 public class InstructionDecodeStage extends Stage{
 	
@@ -13,12 +14,37 @@ public class InstructionDecodeStage extends Stage{
 	
 	@Override
 	public void run() {
-
-		// get instruction from previous pipeline and decode it
-		// get corresponding registers from register file and write them in next pipeline register
-		// sign extend
-		// write register segments into next pipeline register
+		// get instruction from previous pipeline.
+		Register instructionReg = simulator.getIFtoID().getRegister("Instruction");
+		RegisterFile regFile = simulator.getRegisterFile();
+		
+		// decode it.
+		int opcode = instructionReg.getSegment(26, 31);
+		int regT =	instructionReg.getSegment(16, 20);
+		int immValue = instructionReg.getSegment(0, 15); 
+		int regS = 	instructionReg.getSegment(21, 25);
+		int shamt = instructionReg.getSegment(6, 10);
+		
 		// call writeControlFlags method to write control flags into next pipeline register and pass the opcode to int
+		writeControlFlags(opcode);
+		// write register segments into next pipeline register
+		if(opcode == 0) // R - type
+		{
+			int ALUOp = instructionReg.getSegment(0, 5);
+			int regD =	instructionReg.getSegment(11, 15);
+			simulator.getIDtoEx().setRegister("ALUOp", ALUOp);
+			// sign extend
+			simulator.getIDtoEx().setRegister("ImmediateValue", shamt);
+			simulator.getIDtoEx().setRegister("Destination1", regT);
+			simulator.getIDtoEx().setRegister("Destination2", regD);
+		}
+		 simulator.getIDtoEx().setRegister("ImmediateValue", immValue);
+		 
+		 // get corresponding registers from register file and write them in next pipeline register
+		 simulator.getIDtoEx().setRegister("ReadData1", regFile.readRegister(regS).getValue());
+		 simulator.getIDtoEx().setRegister("ReadData2", regFile.readRegister(regT).getValue());
+		 simulator.getIDtoEx().setRegister("Destination1", regT);
+		 simulator.getIDtoEx().setRegister("Destination2", -1); // do not care in any other instruction
 		
 		
 	}
