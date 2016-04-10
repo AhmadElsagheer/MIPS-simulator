@@ -50,7 +50,6 @@ public class Simulator {
 
 	}
 	
-	
 	public PipelineRegister getIFtoID() { return IFtoID; }
 
 	public PipelineRegister getIDtoEx() { return IDtoEx; }

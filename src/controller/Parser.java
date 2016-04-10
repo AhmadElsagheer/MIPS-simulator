@@ -93,6 +93,9 @@ public class Parser {
 	private int parse(String[] assembly) throws Exception
 	{
 		Character format = instructionFormat.get(assembly[0]);
+		if(format == null)
+			throw new Exception("Bad command: "+assembly[0]);
+		
 		int instruction = 0;
 		if(format == 'R')
 		{
@@ -109,21 +112,33 @@ public class Parser {
 		}
 		else if(format == 'I')
 		{
-			if(assembly.length != 4)
-				throw new Exception("Bad I-format instruction");
 			instruction |= commandMap.get(assembly[0]);					//opcode
-			if(assembly[0].equals("BEQ") || assembly[0].equals("BNE"))
+			if(assembly[0].equals("LW") || assembly[0].equals("SW") || assembly[0].equals("LUI"))
 			{
-				instruction |= parseRegister(assembly[1], 21);			//rs - operand1
-				instruction |= parseRegister(assembly[2], 16);			//rt - operand2
-				instruction |= parseConstant(assembly[3]);				//address - relative address
+				if(assembly.length != 3)
+					throw new Exception("Bad I-format instruction: " + assembly[0]);
+				if(assembly[0].equals("LUI"))
+				{
+					instruction |= parseConstant(assembly[1]);			//constant
+				}
+				else
+				{
+					instruction |= parseRegister(assembly[1], 16);		//rt - source/destination
+					String[] rsAndOffset = splitAddress(assembly[2]);
+					instruction |= parseRegister(rsAndOffset[0], 21);	//rs - base address
+					instruction |= parseConstant(rsAndOffset[1]);		//constant - offset
+				}
+				
 			}
 			else
 			{
-				instruction |= parseRegister(assembly[1], 16);			//rt - source/destination
-				String[] rsAndOffset = splitAddress(assembly[2]);
-				instruction |= parseRegister(rsAndOffset[0], 21);		//rs - base address
-				instruction |= parseConstant(rsAndOffset[1]);			//constant - offset
+				if(assembly.length != 4)
+					throw new Exception("Bad I-format instruction: " + assembly[0]);
+				int rs = assembly[0].equals("BEQ") || assembly[0].equals("BNE") ? 1 : 2, rt = (rs-1^1)+1;			
+				instruction |= parseRegister(assembly[rs], 21);			//rs
+				instruction |= parseRegister(assembly[rt], 16);			//rt
+				instruction |= parseConstant(assembly[3]);				//address or constant
+				
 			}
 		}
 		else if(format == 'J')
@@ -133,8 +148,7 @@ public class Parser {
 			instruction |= commandMap.get(assembly[0]);					//opcode
 			instruction |= parseConstant(assembly[1]);					//address
 		}
-		else
-			throw new Exception("Bad command");
+			
 		return instruction;
 	}
 	
