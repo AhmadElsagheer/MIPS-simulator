@@ -14,6 +14,7 @@ public class Simulator {
 
 	PipelineRegister IFtoID;
 	PipelineRegister IDtoEx;
+
 	PipelineRegister ExtoMem;
 	PipelineRegister MemtoWb;
 	
@@ -37,12 +38,19 @@ public class Simulator {
 		// TODO initialize all instance variables
 	}
 	
+	public PipelineRegister getIDtoEx() {
+		return IDtoEx;
+	}
 	
 	
 	
 	void runSimulation(String pathToFile)
 	{
 		
+	}
+	
+	public static void main(String[] args) {
+		System.out.println();
 	}
 
 //	In main method
