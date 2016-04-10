@@ -19,6 +19,7 @@ public class Simulator {
 	PipelineRegister MemtoWb;
 	
 	InstructionMemory instructionMemory;
+
 	RegisterFile registerFile;
 	DataMemory dataMemory;
 	
@@ -36,6 +37,9 @@ public class Simulator {
 		MemtoWb = new PipelineRegister(3);
 		
 		// TODO initialize all instance variables
+	}
+	public RegisterFile getRegisterFile() {
+		return registerFile;
 	}
 	
 	public PipelineRegister getIDtoEx() {
