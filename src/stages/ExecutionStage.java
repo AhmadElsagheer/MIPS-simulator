@@ -16,6 +16,9 @@ public class ExecutionStage extends Stage{
 		int funct = simulator.getIDtoEx()
 				.getRegister("ImmediateValue")
 				.getSegment(5, 0);
+		int PC = simulator.getIDtoEx()
+				.getRegister("PC")
+				.getValue();
 		int ALUOp = simulator.getIDtoEx()
 				.getRegister("ALUOp")
 				.getValue();
@@ -54,13 +57,29 @@ public class ExecutionStage extends Stage{
 		// Perform the ALU Operation
 		ALU(source1, source2, ALUSelector);
 		
-		// determine register destination according to the flag from the previous pipeline and write to next pipeline
 		
-		// check the source of 2nd ALU input according to ALUSrc the flag
-		// call ALU function according to the controls returned from the ALUControl function and write to the next pipeline
-		// shift [15-0] by 2 and add to PC from the previous pipeline and write to the next pipeline
+		// Write the branch address in the next pipeline register
+		writeBranchAddress(PC, immediateValue);
+		
+		// determine register destination 
+		writeRegisterDestination(regDst, destination1, destination2);
+		
 		// write the remaining flags to the next pipeline
-		
+		simulator.getExtoMem().getRegister("RegWrite").setValue(
+				simulator.getIDtoEx().getRegister("RegWrite").getValue() 
+				);
+		simulator.getExtoMem().getRegister("MemToReg").setValue(
+				simulator.getIDtoEx().getRegister("MemToReg").getValue() 
+				);
+		simulator.getExtoMem().getRegister("Branch").setValue(
+				simulator.getIDtoEx().getRegister("Branch").getValue() 
+				);
+		simulator.getExtoMem().getRegister("MemRead").setValue(
+				simulator.getIDtoEx().getRegister("MemRead").getValue() 
+				);
+		simulator.getExtoMem().getRegister("MemWrite").setValue(
+				simulator.getIDtoEx().getRegister("MemWrite").getValue() 
+				);
 	}
 	
 	
@@ -127,6 +146,44 @@ public class ExecutionStage extends Stage{
 		simulator.getExtoMem().getRegister("Zero").setValue(zeroFlag);
 	}
 	
+	
+	/**
+	 * Takes the new PC and the offset to add to, calculates the branch address and
+	 * writes it into EX/MEM pipeline register
+	 * @param PC
+	 * @param offset
+	 */
+	public void writeBranchAddress(int PC, int offset)
+	{
+		// Multiply offset by 4
+		offset <<= 2;
+		
+		// Add offset to PC
+		int branchAddress = PC + offset;
+		
+		// Write branch address to the next pipeline register
+		simulator.getExtoMem().setRegister("BranchAddress", branchAddress);
+		
+	}
+	
+	
+	/**
+	 * Determines the destination register to write in, according to RegDst flag
+	 * @param regDst
+	 * @param destination1
+	 * @param destination2
+	 */
+	private void writeRegisterDestination(int regDst, int destination1, int destination2) {
+		if(regDst == 0)
+		{
+			simulator.getExtoMem().getRegister("Destination").setValue(destination1);
+		}
+		else
+		{
+			simulator.getExtoMem().getRegister("Destination").setValue(destination2);
+		}
+	}
+
 	
 	
 }
