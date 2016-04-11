@@ -31,7 +31,8 @@ public class Register {
 		return size;
 	}
 	
-	
-	
-	
+	public void clear()
+	{
+		value = 0;
+	}
 }
