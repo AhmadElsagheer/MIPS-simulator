@@ -5,13 +5,13 @@ import units.Register;
 import units.RegisterFile;
 
 public class InstructionDecodeStage extends Stage{
-	
-	
+
+
 	public InstructionDecodeStage(Simulator simulator)
 	{
 		super(simulator);
 	}
-	
+
 	@Override
 	/**
 	 * get instruction and decode then pass to the registers in the next pipeline.
@@ -23,39 +23,52 @@ public class InstructionDecodeStage extends Stage{
 
 		// decode it.
 		int opcode = instructionReg.getSegment(31, 26);
-		int regT = instructionReg.getSegment(20, 16);
+		int readRegister1 = instructionReg.getSegment(25, 21);
+		int readRegister2 = instructionReg.getSegment(20, 16);
+		int destination2 = instructionReg.getSegment(15, 11);
 		int immValue = instructionReg.getSegment(15, 0);
-		int regS = instructionReg.getSegment(25, 21);
-		int shamt = instructionReg.getSegment(10, 6);
+		// sign extend
+		int signExtended = signExtend(immValue);
 
 		// call writeControlFlags method to write control flags into next
 		// pipeline register and pass the opcode to int
 		writeControlFlags(opcode);
-		// write register segments into next pipeline register
-		if (opcode == 0) // R - type
-		{
-			int ALUOp = instructionReg.getSegment(5, 0);
-			int regD = instructionReg.getSegment(15, 11);
-			simulator.getIDtoEx().setRegister("ALUOp", ALUOp);
-			// sign extend
-			simulator.getIDtoEx().setRegister("ImmediateValue", shamt);
-			simulator.getIDtoEx().setRegister("Destination1", regT);
-			simulator.getIDtoEx().setRegister("Destination2", regD);
-		}
-		simulator.getIDtoEx().setRegister("ImmediateValue", immValue);
 
-		// get corresponding registers from register file and write them in next
-		// pipeline register
-		simulator.getIDtoEx().setRegister("ReadData1", regFile.readRegister(regS).getValue());
-		simulator.getIDtoEx().setRegister("ReadData2", regFile.readRegister(regT).getValue());
-		simulator.getIDtoEx().setRegister("Destination1", regT);
-		simulator.getIDtoEx().setRegister("Destination2", -1); // do not care in any other instruction
-		simulator.getIDtoEx().setRegister("PC",simulator.getIFtoID().getRegister("PC").getValue()); // pass PC
 		
+		// get corresponding registers from register file and write them in next pipeline register
+		simulator.getIDtoEx().setRegister("PC",simulator.getIFtoID().getRegister("PC").getValue()); // pass PC
+		simulator.getIDtoEx().setRegister("ReadData1", regFile.readRegister(readRegister1).getValue());
+		simulator.getIDtoEx().setRegister("ReadData2", regFile.readRegister(readRegister2).getValue());
+		simulator.getIDtoEx().setRegister("ImmediateValue", signExtended);
+		simulator.getIDtoEx().setRegister("Destination1", readRegister2);
+		simulator.getIDtoEx().setRegister("Destination2", destination2); 
+		
+
 	}
 	
+	
 	/**
-	 * @param opcode from the instruction to write the appropriate control signals.
+	 * takes the 16 bit immediata value, returns the 32 bit value after sign extension
+	 * @param immValue
+	 * @return
+	 */
+	private int signExtend(int immValue) {
+		if(((1<<15) & immValue) == 0)
+		{
+			// positive
+			return immValue;
+		}
+		else
+		{
+			// negative
+			return (((1<<16) - 1) << 16) | immValue;
+		}
+			
+	}
+
+	/**
+	 * opcode from the instruction to write the appropriate control signals.
+	 * @param 
 	 */
 	public void writeControlFlags(int opcode)
 	{	
@@ -66,30 +79,35 @@ public class InstructionDecodeStage extends Stage{
 		int MemWrite = 0;
 		int ALUSrc = 0;
 		int RegWrite = 0;
+		int ALUOp = 0;
 		if (opcode == 0) // R type instruction.
 		{
 			RegDst = 1;
 			RegWrite = 1;
-
-		} else // I type format.
-			if (opcode == 35) // lw instruction
-		{
-			MemRead = 1;
-			MemToReg = 1;
-			ALUSrc = 1;
+			ALUOp = 2;
 
 		} 
+		else // I type format.
+			if (opcode == 35) // lw instruction
+			{
+				MemRead = 1;
+				MemToReg = 1;
+				ALUSrc = 1;
+
+			} 
 			else if (opcode == 43) // sw instruction
-		{
+			{
 				MemWrite = 1;
 				ALUSrc = 1;
-		}
+			}
 			else if (opcode == 4) //beq instruction
-		{
+			{
 				Branch = 1;
-		}
-			// JUMP To BE HANDELED HERE.
-				
+				ALUOp = 1;
+			}
+		// TODO <-- JUMP To BE HANDELED HERE.
+
+		// write the flags to the next pipeline register
 		simulator.getIDtoEx().setRegister("RegDst", RegDst);
 		simulator.getIDtoEx().setRegister("Branch", Branch);
 		simulator.getIDtoEx().setRegister("MemRead", MemRead);
@@ -97,5 +115,6 @@ public class InstructionDecodeStage extends Stage{
 		simulator.getIDtoEx().setRegister("MemWrite", MemWrite);
 		simulator.getIDtoEx().setRegister("ALUSrc", ALUSrc);
 		simulator.getIDtoEx().setRegister("RegWrite", RegWrite);
+		simulator.getIDtoEx().setRegister("ALUOp", ALUOp);
 	}
 }
