@@ -29,10 +29,12 @@ public class Controller {
 			System.out.print("Enter the path to the program to run: ");
 			String fileName = sc.nextLine();
 			System.out.println("Compiling...");
-			if(!controller.getParser().parse(fileName, controller.getSimulator()))
+			try{
+				controller.getParser().parse(fileName, controller.getSimulator());
+			}
+			catch(Exception e)
 			{
-				//better handled with exceptions
-				System.out.println("File contains bad commands");
+				System.out.println(e.getMessage());
 				continue;
 			}
 			System.out.println("Choose one of the following options => R (run), E (exit): ");

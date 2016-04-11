@@ -12,12 +12,19 @@ public class Parser {
 	private HashMap<String, Character> instructionFormat;
 	private HashMap<String, Integer> commandMap;
 	
+	/**
+	 * Constructs a new Parser (Assembler)
+	 * @throws FileNotFoundException if the program file or instruction set are not found
+	 */
 	public Parser() throws FileNotFoundException
 	{
 		initializeRegisterMap();
 		initializeCommands();
 	}
 	
+	/**
+	 * Initializes the register map which maps register names to their index in the register file
+	 */
 	private void initializeRegisterMap()
 	{
 		registerMap = new HashMap<String, Integer>();
@@ -29,12 +36,24 @@ public class Parser {
 		initializeRegisterMap('t', 2, 8, 24); initializeRegisterMap('k', 2, 0, 26);
 	}
 	
+	/**
+	 * Initializes the register map with registers sharing the same symbol
+	 * @param symbol the common symbol among registers
+	 * @param count the number of registers to be mapped
+	 * @param start the number of the first register
+	 * @param base the base index in the register file to map at
+	 */
 	private void initializeRegisterMap(char symbol, int count, int start, int base)
 	{
 		for(int i = 0; i < count; ++i)
 			registerMap.put("$"+symbol+(start+i), base+i);
 	}
 	
+	/**
+	 * Initializes the command map which maps the assembly commands to their opcodes
+	 * (and function in case of R-format instructions)
+	 * @throws FileNotFoundException if the instruction set is not found
+	 */
 	private void initializeCommands() throws FileNotFoundException
 	{
 		instructionFormat = new HashMap<String, Character>();
@@ -53,6 +72,13 @@ public class Parser {
 		sc.close();
 	}
 	
+	/**
+	 * Parses the passed register to its binary representation
+	 * @param register the name of the register to be parsed
+	 * @param shift left shift amout to place it in the correct position in the instruction
+	 * @return partial machine instruction containing the parsed register in the specified position
+	 * @throws Exception if the register is not valid
+	 */
 	private int parseRegister(String register, int shift) throws Exception
 	{
 		if(!registerMap.containsKey(register))
@@ -60,13 +86,25 @@ public class Parser {
 		return registerMap.get(register) << shift;
 	}
 	
-	private int parseConstant(String constant)
+	/**
+	 * Converts a constant or an address to binary
+	 * @param constant the constant or address to be converted
+	 * @param shift left shift amout to place it in the correct position in the instruction
+	 * @return the binary representation of the constant or address placed in its position within the instruction
+	 */
+	private int parseConstant(String constant, int shift)
 	{
 		if(constant.length() > 2 && constant.charAt(1) == 'x')
-			return Integer.parseInt(constant.substring(2), 16) << 6;
-		return Integer.parseInt(constant) << 6;
+			return Integer.parseInt(constant.substring(2), 16) << shift;
+		return Integer.parseInt(constant) << shift;
 	}
 	
+	/**
+	 * Splits an address in memory to an offset and base address
+	 * @param rsAndOffset the assembly representation of the combination
+	 * @return an array of two strings containing the base address and the offset, respectively
+	 * @throws Exception if the combination is not in the correct format
+	 */
 	private String[] splitAddress(String rsAndOffset) throws Exception
 	{
 		String offset = "";
@@ -78,6 +116,11 @@ public class Parser {
 		throw new Exception("Bad I-Format");
 	}
 	
+	/**
+	 * Remove any unnecessary tokens which result from splitting with blanks and commas
+	 * @param in the input array
+	 * @return the filtered array
+	 */
 	private String[] filterTokens(String[] in)
 	{
 		int i = 0, j = 0;
@@ -90,6 +133,12 @@ public class Parser {
 		return Arrays.copyOf(in, j);
 	}
 	
+	/**
+	 * Parses a single instruction from assembly to machine language
+	 * @param assembly the assembly instruction as tokens
+	 * @return the machine(binary) instruction
+	 * @throws Exception if the instruction has bad command/format
+	 */
 	private int parse(String[] assembly) throws Exception
 	{
 		Character format = instructionFormat.get(assembly[0]);
@@ -106,7 +155,7 @@ public class Parser {
 			instruction |= parseRegister(assembly[2], 21); 				//rs - source1
 			instruction |= parseRegister(assembly[1], 11);		 		//rd - destination
 			if(assembly[0].equals("SLL") || assembly[0].equals("SRL"))
-				instruction |= parseConstant(assembly[3]);				//shamt - shift amount
+				instruction |= parseConstant(assembly[3], 6);			//shamt - shift amount
 			else
 				instruction |= parseRegister(assembly[3], 16); 			//rt - source2
 		}
@@ -119,14 +168,14 @@ public class Parser {
 					throw new Exception("Bad I-format instruction: " + assembly[0]);
 				if(assembly[0].equals("LUI"))
 				{
-					instruction |= parseConstant(assembly[1]);			//constant
+					instruction |= parseConstant(assembly[1], 0);			//constant
 				}
 				else
 				{
 					instruction |= parseRegister(assembly[1], 16);		//rt - source/destination
 					String[] rsAndOffset = splitAddress(assembly[2]);
 					instruction |= parseRegister(rsAndOffset[0], 21);	//rs - base address
-					instruction |= parseConstant(rsAndOffset[1]);		//constant - offset
+					instruction |= parseConstant(rsAndOffset[1], 0);	//constant - offset
 				}
 				
 			}
@@ -137,7 +186,7 @@ public class Parser {
 				int rs = assembly[0].equals("BEQ") || assembly[0].equals("BNE") ? 1 : 2, rt = (rs-1^1)+1;			
 				instruction |= parseRegister(assembly[rs], 21);			//rs
 				instruction |= parseRegister(assembly[rt], 16);			//rt
-				instruction |= parseConstant(assembly[3]);				//address or constant
+				instruction |= parseConstant(assembly[3], 0);			//address or constant
 				
 			}
 		}
@@ -146,15 +195,21 @@ public class Parser {
 			if(assembly.length != 2)
 				throw new Exception("Bad J-format instruction");
 			instruction |= commandMap.get(assembly[0]);					//opcode
-			instruction |= parseConstant(assembly[1]);					//address
+			instruction |= parseConstant(assembly[1], 0);				//address
 		}
 			
 		return instruction;
 	}
 	
-	public boolean parse(String fileName, Simulator simulator) throws Exception
+	/**
+	 * Parses a program from assembly to machine language
+	 * @param filePath the path to the file containing the program
+	 * @param simulator the simulator to whose instruction memory the parsed instructions will be stored
+	 * @throws Exception if the program is not found or has bad instructions
+	 */
+	public void parse(String filePath, Simulator simulator) throws Exception
 	{
-		Scanner sc = new Scanner(new FileReader(fileName));
+		Scanner sc = new Scanner(new FileReader(filePath));
 		int counter = 0;
 		while(sc.hasNextLine())
 		{		
@@ -163,7 +218,6 @@ public class Parser {
 			counter += 4;
 		}
 		sc.close();
-		return true;
 	}
 	
 }
