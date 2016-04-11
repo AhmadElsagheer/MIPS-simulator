@@ -92,11 +92,11 @@ public class Parser {
 	 * @param shift left shift amout to place it in the correct position in the instruction
 	 * @return the binary representation of the constant or address placed in its position within the instruction
 	 */
-	private int parseConstant(String constant, int shift)
+	private int parseConstant(String constant, int shift, int size)
 	{
 		if(constant.length() > 2 && constant.charAt(1) == 'x')
-			return Integer.parseInt(constant.substring(2), 16) << shift;
-		return Integer.parseInt(constant) << shift;
+			return (Integer.parseInt(constant.substring(2), 16) & ((1<<size) - 1)) << shift;
+		return (Integer.parseInt(constant) & ((1<<size) - 1)) << shift;
 	}
 	
 	/**
@@ -110,7 +110,7 @@ public class Parser {
 		String offset = "";
 		for(int i = 0; i < rsAndOffset.length(); ++i)
 			if(rsAndOffset.charAt(i) == '(')
-				return new String[] { offset, rsAndOffset.substring(i+1, rsAndOffset.length()-1)};
+				return new String[] { rsAndOffset.substring(i+1, rsAndOffset.length()-1),  offset};
 			else
 				offset += rsAndOffset.charAt(i);
 		throw new Exception("Bad I-Format");
@@ -155,7 +155,7 @@ public class Parser {
 			instruction |= parseRegister(assembly[2], 21); 				//rs - source1
 			instruction |= parseRegister(assembly[1], 11);		 		//rd - destination
 			if(assembly[0].equals("SLL") || assembly[0].equals("SRL"))
-				instruction |= parseConstant(assembly[3], 6);			//shamt - shift amount
+				instruction |= parseConstant(assembly[3], 6, 5);		//shamt - shift amount
 			else
 				instruction |= parseRegister(assembly[3], 16); 			//rt - source2
 		}
@@ -168,14 +168,14 @@ public class Parser {
 					throw new Exception("Bad I-format instruction: " + assembly[0]);
 				if(assembly[0].equals("LUI"))
 				{
-					instruction |= parseConstant(assembly[1], 0);			//constant
+					instruction |= parseConstant(assembly[1], 0, 16);	//constant
 				}
 				else
 				{
 					instruction |= parseRegister(assembly[1], 16);		//rt - source/destination
 					String[] rsAndOffset = splitAddress(assembly[2]);
 					instruction |= parseRegister(rsAndOffset[0], 21);	//rs - base address
-					instruction |= parseConstant(rsAndOffset[1], 0);	//constant - offset
+					instruction |= parseConstant(rsAndOffset[1], 0, 16);//constant - offset
 				}
 				
 			}
@@ -186,8 +186,7 @@ public class Parser {
 				int rs = assembly[0].equals("BEQ") || assembly[0].equals("BNE") ? 1 : 2, rt = (rs-1^1)+1;			
 				instruction |= parseRegister(assembly[rs], 21);			//rs
 				instruction |= parseRegister(assembly[rt], 16);			//rt
-				instruction |= parseConstant(assembly[3], 0);			//address or constant
-				
+				instruction |= parseConstant(assembly[3], 0, 16);		//address or constant
 			}
 		}
 		else if(format == 'J')
@@ -195,7 +194,7 @@ public class Parser {
 			if(assembly.length != 2)
 				throw new Exception("Bad J-format instruction");
 			instruction |= commandMap.get(assembly[0]);					//opcode
-			instruction |= parseConstant(assembly[1], 0);				//address
+			instruction |= parseConstant(assembly[1], 0, 16);			//address
 		}
 			
 		return instruction;
@@ -214,9 +213,13 @@ public class Parser {
 		while(sc.hasNextLine())
 		{		
 			String[] assembly = filterTokens(sc.nextLine().trim().split(" |,"));
+			if(assembly.length == 0)
+				continue;
+			assembly[0] = assembly[0].toUpperCase();
 			simulator.getInstructionMemory().setInstruction(counter, parse(assembly));
 			counter += 4;
 		}
+		
 		sc.close();
 	}
 	

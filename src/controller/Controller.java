@@ -34,6 +34,7 @@ public class Controller {
 			}
 			catch(Exception e)
 			{
+				e.printStackTrace();
 				System.out.println(e.getMessage());
 				continue;
 			}
