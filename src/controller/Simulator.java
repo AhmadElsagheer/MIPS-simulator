@@ -16,11 +16,9 @@ public class Simulator {
 	PipelineRegister IDtoEx;
 	PipelineRegister ExtoMem;
 	PipelineRegister MemtoWb;
-
 	InstructionMemory instructionMemory;
 	RegisterFile registerFile;
 	DataMemory dataMemory;
-
 	InstructionFetchStage instructionFetchStage;
 	InstructionDecodeStage instructionDecodeStage;
 	ExecutionStage executionStage;
@@ -44,8 +42,9 @@ public class Simulator {
 		memoryStage = new MemoryStage(this);
 		writeBackStage = new WriteBackStage(this);
 	}
-
-	void run() 
+	
+	
+	void runSimulation(String pathToFile)
 	{
 
 	}
