@@ -16,15 +16,21 @@ public class Simulator {
 	PipelineRegister IDtoEx;
 	PipelineRegister ExtoMem;
 	PipelineRegister MemtoWb;
+	
 	InstructionMemory instructionMemory;
 	RegisterFile registerFile;
 	DataMemory dataMemory;
+	
 	InstructionFetchStage instructionFetchStage;
 	InstructionDecodeStage instructionDecodeStage;
 	ExecutionStage executionStage;
 	MemoryStage memoryStage;
 	WriteBackStage writeBackStage;
 
+	/**
+	 * Constructs a new simulator that has four pipeline registers, three data units
+	 * and five stages (helper simulators for each pipeline stage)
+	 */
 	public Simulator()
 	{
 		IFtoID = new PipelineRegister(0);
@@ -32,9 +38,9 @@ public class Simulator {
 		ExtoMem = new PipelineRegister(2);
 		MemtoWb = new PipelineRegister(3);
 		
-		instructionMemory = new InstructionMemory(100);
+		instructionMemory = new InstructionMemory(1000);	//1000 instructions, 32 KB
 		registerFile = new RegisterFile();
-		dataMemory = new DataMemory(16000);		//64 KB memory
+		dataMemory = new DataMemory(16000);					//64 KB
 		
 		instructionFetchStage = new InstructionFetchStage(this);
 		instructionDecodeStage = new InstructionDecodeStage(this);
@@ -43,10 +49,17 @@ public class Simulator {
 		writeBackStage = new WriteBackStage(this);
 	}
 	
-	
-	void runSimulation(String pathToFile)
+	/**
+	 * Runs the simulator
+	 */
+	void run()
 	{
-
+//		it must run the five stages in each clock cycle
+//		int numberOfInstructions = instructionMemory
+		while(true)
+		{
+			
+		}
 	}
 	
 	public PipelineRegister getIFtoID() { return IFtoID; }

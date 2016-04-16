@@ -6,7 +6,10 @@ import units.RegisterFile;
 
 public class InstructionDecodeStage extends Stage{
 
-
+	/**
+	 * Constructs a new instruction decode stage.
+	 * @param simulator the simulator to which the stage is associated.
+	 */
 	public InstructionDecodeStage(Simulator simulator)
 	{
 		super(simulator);
@@ -14,9 +17,10 @@ public class InstructionDecodeStage extends Stage{
 
 	@Override
 	/**
-	 * get instruction and decode then pass to the registers in the next pipeline.
+	 * Runs instruction decode stage.
 	 */
-	public void run() {
+	public void run() 
+	{
 		// get instruction from previous pipeline.
 		Register instructionReg = simulator.getIFtoID().getRegister("Instruction");
 		RegisterFile regFile = simulator.getRegisterFile();

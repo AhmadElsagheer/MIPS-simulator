@@ -4,14 +4,21 @@ import controller.Simulator;
 
 public class ExecutionStage extends Stage{
 
+	/**
+	 * Constructs a new execution stage.
+	 * @param simulator the simulator to which the stage is associated.
+	 */
 	public ExecutionStage(Simulator simulator)
 	{
 		super(simulator);
 	}
 	
 	@Override
-	public void run() {
-		
+	/**
+	 * Runs execution stage.
+	 */
+	public void run() 
+	{	
 		// Get all the needed registers from the previous pipeline register
 		int funct = simulator.getIDtoEx()
 				.getRegister("ImmediateValue")

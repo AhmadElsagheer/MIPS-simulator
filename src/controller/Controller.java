@@ -8,16 +8,34 @@ public class Controller {
 	private Simulator simulator;
 	private Parser parser;
 	
+	/**
+	 * Constructs a new controller
+	 * @throws FileNotFoundException if parser can't find program file or instruction set
+	 */
 	public Controller() throws FileNotFoundException
 	{
 		simulator = new Simulator();
 		parser = new Parser();
 	}
 	
+	/**
+	 * Gets the simulator instance associated with the controller
+	 * @return the simulator
+	 */
 	public Simulator getSimulator() { return simulator; }
 	
+	/**
+	 * Gets the parser instance associated with the controller
+	 * @return the parser
+	 */
 	public Parser getParser() { return parser; }
 	
+	/**
+	 * Main program. 
+	 * It parses the assembly code to machine language and runs the MIPS simulator
+	 * @param args
+	 * @throws Exception if required files are not found or program has bad instructions
+	 */
 	public static void main(String[] args) throws Exception 
 	{
 		Scanner sc = new Scanner(System.in);
