@@ -6,6 +6,10 @@ public class InstructionFetchStage extends Stage{
 
 	private int PC;
 	
+	/**
+	 * Constructs a new instruction fetch stage.
+	 * @param simulator the simulator to which the stage is associated.
+	 */
 	public InstructionFetchStage(Simulator simulator)
 	{
 		super(simulator);
@@ -13,7 +17,10 @@ public class InstructionFetchStage extends Stage{
 	}
 	
 	@Override
-	public void run() 
+	/**
+	 * Runs the instruction fetch stage
+	 */
+	public void run()
 	{
 		//read next instruction from instruction memory
 		int instruction = simulator.getInstructionMemory().getInstruction(PC);
@@ -30,8 +37,7 @@ public class InstructionFetchStage extends Stage{
 		simulator.getIDtoEx().getRegister("Instruction").setValue(instruction);
 		
 		//send new PC to pipeline
-		simulator.getIDtoEx().getRegister("PC").setValue(PC);
-		
+		simulator.getIDtoEx().getRegister("PC").setValue(PC);		
 	}
 
 }
