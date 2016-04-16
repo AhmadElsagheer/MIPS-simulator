@@ -8,7 +8,7 @@ public class InstructionDecodeStage extends Stage{
 
 	/**
 	 * Constructs a new instruction decode stage.
-	 * @param simulator the simulator to which the stage is associated.
+	 * @param simulator the simulator to which the stage is associated
 	 */
 	public InstructionDecodeStage(Simulator simulator)
 	{
@@ -22,28 +22,24 @@ public class InstructionDecodeStage extends Stage{
 	public void run() 
 	{
 		// get instruction from previous pipeline.
-		Register instructionReg = simulator.getIFtoID().getRegister("Instruction");
-		RegisterFile regFile = simulator.getRegisterFile();
+		Register instruction = simulator.getIFtoID().getRegister("Instruction");
+		RegisterFile registerFile = simulator.getRegisterFile();
 
 		// decode it.
-		int opcode = instructionReg.getSegment(31, 26);
-		int readRegister1 = instructionReg.getSegment(25, 21);
-		int readRegister2 = instructionReg.getSegment(20, 16);
-		int destination2 = instructionReg.getSegment(15, 11);
-		int immValue = instructionReg.getSegment(15, 0);
-		// sign extend
-		int signExtended = signExtend(immValue);
-
-		// call writeControlFlags method to write control flags into next
-		// pipeline register and pass the opcode to int
-		writeControlFlags(opcode);
-
+		int opcode = instruction.getSegment(31, 26);
+		int readRegister1 = instruction.getSegment(25, 21);
+		int readRegister2 = instruction.getSegment(20, 16);
+		int destination2 = instruction.getSegment(15, 11);
+		int immediateValue = instruction.getSegment(15, 0);
+		int signExtend = signExtend(immediateValue);
 		
-		// get corresponding registers from register file and write them in next pipeline register
-		simulator.getIDtoEx().setRegister("PC",simulator.getIFtoID().getRegister("PC").getValue()); // pass PC
-		simulator.getIDtoEx().setRegister("ReadData1", regFile.readRegister(readRegister1).getValue());
-		simulator.getIDtoEx().setRegister("ReadData2", regFile.readRegister(readRegister2).getValue());
-		simulator.getIDtoEx().setRegister("ImmediateValue", signExtended);
+		writeControlFlags(opcode);
+		
+		// write to next pipeline
+		simulator.getIDtoEx().setRegister("PC", simulator.getIFtoID().getRegister("PC").getValue());
+		simulator.getIDtoEx().setRegister("ReadData1", registerFile.readRegister(readRegister1).getValue());
+		simulator.getIDtoEx().setRegister("ReadData2", registerFile.readRegister(readRegister2).getValue());
+		simulator.getIDtoEx().setRegister("ImmediateValue", signExtend);
 		simulator.getIDtoEx().setRegister("Destination1", readRegister2);
 		simulator.getIDtoEx().setRegister("Destination2", destination2); 
 		
@@ -52,27 +48,20 @@ public class InstructionDecodeStage extends Stage{
 	
 	
 	/**
-	 * takes the 16 bit immediata value, returns the 32 bit value after sign extension
-	 * @param immValue
-	 * @return
+	 * Extends the sign of the 16-bit input value to be a 32-bit value.
+	 * @param value the value to be sign-extended
+	 * @return the new value after sign extension
 	 */
-	private int signExtend(int immValue) {
-		if(((1<<15) & immValue) == 0)
-		{
-			// positive
-			return immValue;
-		}
-		else
-		{
-			// negative
-			return (((1<<16) - 1) << 16) | immValue;
-		}
-			
+	private int signExtend(int value) 
+	{
+		if(((1<<15) & value) == 0)
+			return value;
+		return (((1<<16) - 1) << 16) | value;	
 	}
 
 	/**
-	 * opcode from the instruction to write the appropriate control signals.
-	 * @param 
+	 * Generates control signals and writes them to the next pipeline register.
+	 * @param opcode the opcode of the instruction
 	 */
 	public void writeControlFlags(int opcode)
 	{	
@@ -84,34 +73,16 @@ public class InstructionDecodeStage extends Stage{
 		int ALUSrc = 0;
 		int RegWrite = 0;
 		int ALUOp = 0;
-		if (opcode == 0) // R type instruction.
+		
+		switch(opcode)
 		{
-			RegDst = 1;
-			RegWrite = 1;
-			ALUOp = 2;
+			case 0:  ALUOp = 1 + (RegDst = RegWrite = 1); break;	// R-format instructions
+			case 35: MemRead = MemToReg = ALUSrc = 1; break;		// LW instruction
+			case 43: MemWrite = ALUSrc = 1; break;					// SW instruction
+			case 4:  Branch = ALUOp = 1; break;						// BEQ instruction
+			default:	; //TODO: missing instructions
+		}
 
-		} 
-		else // I type format.
-			if (opcode == 35) // lw instruction
-			{
-				MemRead = 1;
-				MemToReg = 1;
-				ALUSrc = 1;
-
-			} 
-			else if (opcode == 43) // sw instruction
-			{
-				MemWrite = 1;
-				ALUSrc = 1;
-			}
-			else if (opcode == 4) //beq instruction
-			{
-				Branch = 1;
-				ALUOp = 1;
-			}
-		// TODO <-- JUMP To BE HANDELED HERE.
-
-		// write the flags to the next pipeline register
 		simulator.getIDtoEx().setRegister("RegDst", RegDst);
 		simulator.getIDtoEx().setRegister("Branch", Branch);
 		simulator.getIDtoEx().setRegister("MemRead", MemRead);
