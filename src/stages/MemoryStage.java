@@ -19,11 +19,16 @@ public class MemoryStage extends Stage{
 	 */
 	public void run() 
 	{
+		simulator.getMemtoWb().setRegister("RegWrite", simulator.getExtoMem().getRegister("RegWrite").getValue());
 		
-	}
+		simulator.getMemtoWb().setRegister("MemToReg", simulator.getExtoMem().getRegister("MemToReg").getValue());
+		
+		simulator.getMemtoWb().setRegister("Destination", simulator.getExtoMem().getRegister("Destination").getValue());
+		
+		if(simulator.getMemtoWb().getRegister("MemRead").getValue()==0)
+			simulator.getMemtoWb().setRegister("MemoryOutput", simulator.getDataMemory().read(simulator.getExtoMem().getRegister("ALUResult").getValue()));
 	
-	
-	
-	
-	
+		if(simulator.getMemtoWb().getRegister("MemWrite").getValue()==0)
+			simulator.getDataMemory().write(simulator.getDataMemory().read(simulator.getExtoMem().getRegister("ALUResult").getValue()), simulator.getDataMemory().read(simulator.getExtoMem().getRegister("ReadData2").getValue()));		
+	}	
 }

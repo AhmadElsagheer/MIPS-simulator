@@ -13,7 +13,7 @@ public class ExecutionStage extends Stage{
 	{
 		super(simulator);
 	}
-	
+
 	@Override
 	/**
 	 * Runs execution stage.
@@ -21,7 +21,7 @@ public class ExecutionStage extends Stage{
 	public void run() 
 	{	
 		PipelineRegister IDtoEx = simulator.getIDtoEx(), ExtoMem = simulator.getExtoMem();
-		
+
 		// 1. Read from the previous pipeline register
 		int funct 			= IDtoEx.getRegister("ImmediateValue").getSegment(5, 0);
 		int PC 				= IDtoEx.getRegister("PC").getValue();
@@ -33,10 +33,31 @@ public class ExecutionStage extends Stage{
 		int immediateValue 	= IDtoEx.getRegister("ImmediateValue").getValue();
 		int destination1 	= IDtoEx.getRegister("Destination1").getValue();
 		int destination2 	= IDtoEx.getRegister("Destination2").getValue();
+
+
+		// handling forwarding for readData1
+		if(simulator.getExtoMem().getRegister("RegWrite").getValue() == 1 && readData1 != 0
+		   && simulator.getExtoMem().getRegister("Destination").getValue() == readData1)
+			readData1 = simulator.getExtoMem().getRegister("ALUResult").getValue();		
+		else if (simulator.getMemtoWb().getRegister("RegWrite").getValue() == 1 && readData1 != 0
+				&& simulator.getMemtoWb().getRegister("Destination").getValue() == readData1)	
+					readData1 	= simulator.getMemtoWb().getRegister("MemToReg").getValue() == 1 
+								? simulator.getMemtoWb().getRegister("ALUResult").getValue() 
+								: simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
+			
+		// handling forwarding for readData2
+		if(simulator.getExtoMem().getRegister("RegWrite").getValue() == 1 && readData2 != 0
+			&& simulator.getExtoMem().getRegister("Destination").getValue() == readData2)
+						readData2 = simulator.getExtoMem().getRegister("ALUResult").getValue();	
+		else if (simulator.getMemtoWb().getRegister("RegWrite").getValue() == 1 && readData2 != 0 
+				&& simulator.getMemtoWb().getRegister("Destination").getValue() == readData2)
+					readData2 	= simulator.getMemtoWb().getRegister("MemToReg").getValue() == 1 
+								? simulator.getMemtoWb().getRegister("ALUResult").getValue() 
+								: simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
 		
 		// 2. ALU Execution
 		ALU(readData1, ALUSrc == 1 ? immediateValue : readData2, ALUControl(funct, ALUOp));		
-	
+
 		// 3. Write to next pipeline register	
 		ExtoMem.setRegister("BranchAddress", PC + (immediateValue << 2));
 		ExtoMem.getRegister("Destination").setValue(regDst == 0 ? destination1 : destination2);	
@@ -46,8 +67,7 @@ public class ExecutionStage extends Stage{
 		ExtoMem.getRegister("MemRead").setValue(IDtoEx.getRegister("MemRead").getValue());
 		ExtoMem.getRegister("MemWrite").setValue(IDtoEx.getRegister("MemWrite").getValue());
 	}
-	
-	
+
 	/**
 	 * Computes the selector for the ALU unit
 	 * @param funct function code
@@ -77,7 +97,7 @@ public class ExecutionStage extends Stage{
 		}
 		return ALUSelector;
 	}
-	
+
 	/**
 	 * Computes an arithmetic/logical operation and writes the result to EXtoMem pipeline register
 	 * @param source1 the first source to ALU unit
@@ -87,7 +107,7 @@ public class ExecutionStage extends Stage{
 	public void ALU(int source1, int source2, int control)
 	{
 		int ALUResult = 0, zeroFlag = 0;
-		
+
 		// 1. Perform the operation
 		switch (control)
 		{
@@ -97,11 +117,11 @@ public class ExecutionStage extends Stage{
 		case 6: ALUResult = source1 - source2; break;
 		case 7: ALUResult = (source1 < source2) ? 1 : 0; break;
 		}
-		
+
 		// 2. Assign the value of the zero flag
 		if(ALUResult == 0)
 			zeroFlag = 1;
-		
+
 		// 3. Set the registers values in the next pipeline register
 		simulator.getExtoMem().getRegister("ALUResult").setValue(ALUResult);
 		simulator.getExtoMem().getRegister("Zero").setValue(zeroFlag);
