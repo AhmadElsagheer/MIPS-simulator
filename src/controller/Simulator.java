@@ -66,9 +66,6 @@ public class Simulator {
 	 */
 	void run()
 	{
-		dataMemory.write(0, 5);
-		dataMemory.write(4, 7);
-		
 		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 		System.out.println("                Start of Program");
 		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");

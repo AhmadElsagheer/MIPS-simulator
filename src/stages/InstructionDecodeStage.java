@@ -124,11 +124,13 @@ public class InstructionDecodeStage extends Stage{
 
 		switch(opcode)
 		{
-		case 0:  ALUOp = 1 + (RegDst = RegWrite = MemToReg = 1); break;		// R-format instructions
-		case 35: MemRead = ALUSrc = RegWrite =  1; break;					// LW instruction
+		case 0:  ALUOp = 1 + (RegDst = RegWrite = 1); break;				// R-format instructions
+		case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
 		case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
 		case 4:  Branch = ALUOp = 1; break;									// BEQ instruction
-		default:	; //TODO: missing instructions
+		//TODO: ALUOp is assumed to be 00 the same as LW/SW, need to find the exact value for ADDI instruction
+		case 8:  RegWrite = ALUSrc = 1; break;				// ADDI
+		default: ; //TODO: missing instructions
 		}
 
 		simulator.getIDtoEx().setRegister("RegDst", RegDst);

@@ -57,7 +57,7 @@ public class Controller {
 				System.out.println("Error: " + e.getMessage());
 				continue;
 			}
-			System.out.println("Choose one of the following options => R (run), E (exit): ");
+			System.out.print("Choose one of the following options => R (run), E (exit): ");
 			if(sc.next().toUpperCase().charAt(0) == 'R')
 				controller.getSimulator().run();
 			break;

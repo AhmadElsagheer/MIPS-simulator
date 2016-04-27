@@ -1,7 +1,6 @@
-lw $t0, 0($zero)
-lw $t1, 4($zero)
-add $t2, $t1, $t1
-add $zero, $zero, $zero
-add $zero, $zero, $zero	
-add $zero, $zero, $zero
-sw $t2, 8($zero)
+addi $t1, $zero, 3
+addi $t2, $zero, 4
+add $t3, $t1, $t2
+sw $t3, 0($zero)
+
+
