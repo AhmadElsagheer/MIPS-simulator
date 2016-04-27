@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 public class Parser {
@@ -34,6 +35,12 @@ public class Parser {
 		initializeRegisterMap('v', 2, 0, 2); initializeRegisterMap('a', 4, 0, 4);
 		initializeRegisterMap('t', 8, 0, 8); initializeRegisterMap('s', 8, 0, 16);
 		initializeRegisterMap('t', 2, 8, 24); initializeRegisterMap('k', 2, 0, 26);
+	}
+	
+	public void setRegistersNames(Simulator simulator)
+	{
+		for(Entry<String, Integer> entry: registerMap.entrySet())
+			simulator.getRegisterFile().readRegister(entry.getValue()).setName(entry.getKey());
 	}
 	
 	/**

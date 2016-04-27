@@ -19,10 +19,13 @@ public class WriteBackStage extends Stage{
 	 */
 	public void run() 
 	{
-		if(simulator.getMemtoWb().getRegister("RegWrite").getValue()==1)
+		if(simulator.getInstructionNumber(4) == Simulator.EMPTY)
+			return;
+
+		if(simulator.getMemtoWb().getRegister("RegWrite").getValue() == 1)
 		{
 			int value = 0;
-			if(simulator.getMemtoWb().getRegister("MemToReg").getValue()==0)
+			if(simulator.getMemtoWb().getRegister("MemToReg").getValue() == 0)
 				value = simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
 			else
 				value = simulator.getMemtoWb().getRegister("ALUResult").getValue();

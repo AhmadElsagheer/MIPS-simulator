@@ -47,27 +47,20 @@ public class Controller {
 			System.out.print("Enter the path to the program to run: ");
 			String fileName = sc.nextLine();
 			System.out.println("Compiling...");
+			
 			try{
 				controller.getParser().parse(fileName, controller.getSimulator());
+				controller.getParser().setRegistersNames(controller.getSimulator());
 			}
 			catch(Exception e)
 			{
-				e.printStackTrace();
-				System.out.println(e.getMessage());
+				System.out.println("Error: " + e.getMessage());
 				continue;
 			}
 			System.out.println("Choose one of the following options => R (run), E (exit): ");
-			if(sc.next().charAt(0) == 'E')
-				break;
-			//Initial simulation
-			while(true)
-			{
+			if(sc.next().toUpperCase().charAt(0) == 'R')
 				controller.getSimulator().run();
-				System.out.print("Restart? (Y/N): ");
-				if(sc.next().charAt(0) != 'Y')
-					break;
-			}
-			
+			break;
 		}		
 		
 		sc.close();

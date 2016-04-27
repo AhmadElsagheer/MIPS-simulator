@@ -2,6 +2,7 @@ package units;
 
 public class Register {
 
+	private String name;
 	private int size;
 	private int value;
 	
@@ -14,7 +15,6 @@ public class Register {
 		this.size = size;
 	}
 	
-	//Get part of the register between left and right bits numbers (inclusive)
 	/**
 	 * Retrieves the bits of the register between left and right indices, inclusive
 	 * @param left the index of the leftmost bit to be retrieved
@@ -53,11 +53,31 @@ public class Register {
 		return size;
 	}
 	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	/**
 	 * Sets register to 0
 	 */
 	public void clear()
 	{
 		value = 0;
+	}
+	
+	public String toString()
+	{
+		String r = Integer.toBinaryString(value);
+		while(r.length() < size)
+			r = "0" + r;
+		if(name != null)
+			r = name + ": " + r;
+		return r;
 	}
 }
