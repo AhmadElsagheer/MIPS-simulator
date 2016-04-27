@@ -6,7 +6,7 @@ import units.RegisterFile;
 
 public class InstructionDecodeStage extends Stage{
 
-
+	private boolean acceptRedoReadRegisters;
 	
 	/**
 	 * Constructs a new instruction decode stage.
@@ -23,13 +23,12 @@ public class InstructionDecodeStage extends Stage{
 	 */
 	public void run() 
 	{
+		acceptRedoReadRegisters = false;
 		if(simulator.getInstructionNumber(1) == Simulator.EMPTY)
 		{
 			simulator.setInstructionNumber(2, Simulator.EMPTY);
 			return;
 		}
-		
-		
 		
 		// get instruction from previous pipeline.
 		Register instruction = simulator.getIFtoID().getRegister("Instruction");
@@ -75,7 +74,25 @@ public class InstructionDecodeStage extends Stage{
 			
 			// Set Next Instruction for Execution
 			simulator.setInstructionNumber(2, simulator.getInstructionNumber(1));
+			
+			acceptRedoReadRegisters = true;
 		}
+	}
+	
+	/**
+	 * Re-read the values of the registers. Used by WriteBackStage 
+	 * to prevent falsy data read
+	 */
+	public void redoReadRegisters()
+	{
+		if(!acceptRedoReadRegisters)
+			return;
+		Register instruction = simulator.getIFtoID().getRegister("Instruction");
+		RegisterFile registerFile = simulator.getRegisterFile();
+		int readRegister1 = instruction.getSegment(25, 21);
+		int readRegister2 = instruction.getSegment(20, 16);
+		simulator.getIDtoEx().setRegister("ReadData1", registerFile.readRegister(readRegister1).getValue());
+		simulator.getIDtoEx().setRegister("ReadData2", registerFile.readRegister(readRegister2).getValue());
 	}
 
 	/**

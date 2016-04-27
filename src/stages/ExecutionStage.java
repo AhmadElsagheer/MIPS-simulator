@@ -44,10 +44,8 @@ public class ExecutionStage extends Stage{
 
 		// handling forwarding for readData1
 		if(simulator.getExtoMem().getRegister("RegWrite").getValue() == 1 && rs != 0
-		   && simulator.getExtoMem().getRegister("Destination").getValue() == rs){
+		   && simulator.getExtoMem().getRegister("Destination").getValue() == rs)
 			readData1 = simulator.getExtoMem().getRegister("ALUResult").getValue();		
-			System.out.println("here");
-		}
 		else if (simulator.getMemtoWb().getRegister("RegWrite").getValue() == 1 && rs != 0
 				&& simulator.getMemtoWb().getRegister("Destination").getValue() == rs)	
 					readData1 	= simulator.getMemtoWb().getRegister("MemToReg").getValue() == 1 
@@ -65,7 +63,6 @@ public class ExecutionStage extends Stage{
 								: simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
 		
 		// 2. ALU Execution
-								System.out.println(readData1 + " "+ readData2);
 		ALU(readData1, ALUSrc == 1 ? immediateValue : readData2, ALUControl(funct, ALUOp));		
 
 		// 3. Write to next pipeline register	

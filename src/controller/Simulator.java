@@ -160,7 +160,7 @@ public class Simulator {
 	{
 		if(clockCycle > 1)
 		System.out.println("##############################################\n");
-		System.out.printf("Clock Cycle %d\n^^^^^^^^^^^^^^\n", clockCycle);
+		System.out.printf("Clock Cycle %2d\n^^^^^^^^^^^^^^\n", clockCycle);
 		for(int i = 0; i < 5; ++i)
 			if(instructionsNumbers[i] >= 0)
 				System.out.printf("Instruction %d %s\n", instructionsNumbers[i] + 1, instructionAction[i]);
