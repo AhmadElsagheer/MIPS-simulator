@@ -48,6 +48,7 @@ public class PipelineRegister {
 			registers.put("ReadData1", new Register(32));
 			registers.put("ReadData2", new Register(32));
 			registers.put("ImmediateValue", new Register(32));
+			registers.put("rs", new Register(5));
 			registers.put("Destination1", new Register(5));
 			registers.put("Destination2", new Register(5));
 		}
@@ -72,8 +73,6 @@ public class PipelineRegister {
 			registers.put("ALUResult", new Register(32));
 			registers.put("Destination", new Register(5));
 		}
-
-		registers = new HashMap<String, Register>();
 		
 		if(!fake)
 			tmpRegister = new PipelineRegister(type, true);
@@ -97,7 +96,7 @@ public class PipelineRegister {
 	 */
 	public void setRegister(String registerName, int value)
 	{
-		tmpRegister.setRegister(registerName, value);
+		tmpRegister.getRegister(registerName).setValue(value);
 	}
 	
 	/**
@@ -112,6 +111,20 @@ public class PipelineRegister {
 			registers.get(registerName).setValue(tmpRegister.getRegister(registerName).getValue());
 			tmpRegister.getRegister(registerName).clear();
 		}
+	}
+	
+	public void selfUpdate()
+	{
+		for(Entry<String, Register> entry: registers.entrySet())
+			setRegister(entry.getKey(), entry.getValue().getValue());
+	}
+	
+	public String toString()
+	{
+		String r = "";
+		for(Entry<String, Register> entry: registers.entrySet())
+			r += String.format("%s %s\n", entry.getKey(), entry.getValue());
+		return r;
 	}
 	
 }
