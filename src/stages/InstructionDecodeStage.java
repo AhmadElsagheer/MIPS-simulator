@@ -41,6 +41,8 @@ public class InstructionDecodeStage extends Stage{
 		int readRegister2 = instruction.getSegment(20, 16);
 		int destination2 = instruction.getSegment(15, 11);
 		int immediateValue = instruction.getSegment(15, 0);
+		int funct = instruction.getSegment(5, 0);
+		
 		int signExtend = signExtend(immediateValue);
 
 		if(simulator.getIDtoEx().getRegister("MemRead").getValue() == 1 
@@ -63,7 +65,7 @@ public class InstructionDecodeStage extends Stage{
 		}
 		else
 		{
-			writeControlFlags(opcode);
+			writeControlFlags(opcode, funct);
 
 			// write to next pipeline
 			simulator.getIDtoEx().setRegister("PC", simulator.getIFtoID().getRegister("PC").getValue());
@@ -111,7 +113,7 @@ public class InstructionDecodeStage extends Stage{
 	 * Generates control signals and writes them to the next pipeline register.
 	 * @param opcode the opcode of the instruction
 	 */
-	public void writeControlFlags(int opcode)
+	public void writeControlFlags(int opcode, int funct)
 	{	
 		int RegDst = 0;
 		int Branch = 0;
@@ -123,7 +125,10 @@ public class InstructionDecodeStage extends Stage{
 		int ALUOp = 0;
 		switch(opcode)
 		{
-			case 0:  ALUOp = 1 + (RegDst = RegWrite = 1); break;				// R-format instructions
+			case 0:  
+				if(funct == 0)
+					ALUSrc = 1;
+				ALUOp = 1 + (RegDst = RegWrite = 1); break;				// R-format instructions
 			case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
 			case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
 			case 4:  Branch = ALUOp = 1; break;									// BEQ instruction

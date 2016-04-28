@@ -35,7 +35,6 @@ public class InstructionFetchStage extends Stage{
 		boolean tmpBranchNext;
 		//Read next instruction from instruction memory
 		int instruction = simulator.getInstructionMemory().getInstruction(PC);
-		System.out.println(PC + " "+instruction);
 		//Increment PC or check PCsrc flag
 		int branch = simulator.getExtoMem().getRegister("Branch").getValue();
 		int zero = simulator.getExtoMem().getRegister("Zero").getValue();

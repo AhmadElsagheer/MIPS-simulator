@@ -37,6 +37,7 @@ public class ExecutionStage extends Stage{
 		int readData1		= IDtoEx.getRegister("ReadData1").getValue();
 		int readData2		= IDtoEx.getRegister("ReadData2").getValue();
 		int immediateValue 	= IDtoEx.getRegister("ImmediateValue").getValue();
+		int shmt			= IDtoEx.getRegister("ImmediateValue").getSegment(10, 6);
 		int rs 				= IDtoEx.getRegister("rs").getValue();
 		int destination1 	= IDtoEx.getRegister("Destination1").getValue();
 		int destination2 	= IDtoEx.getRegister("Destination2").getValue();
@@ -62,7 +63,7 @@ public class ExecutionStage extends Stage{
 								? simulator.getMemtoWb().getRegister("ALUResult").getValue() 
 								: simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
 		// 2. ALU Execution
-		ALU(readData1, ALUSrc == 1 ? immediateValue : readData2, ALUControl(funct, ALUOp));		
+		ALU(readData1, ALUSrc == 1 ? immediateValue : readData2, ALUControl(funct, ALUOp), shmt);		
 		// 3. Write to next pipeline register	
 		ExtoMem.setRegister("BranchAddress", PC + (immediateValue << 2));
 		ExtoMem.setRegister("Destination", regDst == 0 ? destination1 : destination2);	
@@ -96,6 +97,7 @@ public class ExecutionStage extends Stage{
 			case 36: ALUSelector = 0; break;
 			case 37: ALUSelector = 1; break;
 			case 42: ALUSelector = 7; break;
+			case  0: ALUSelector = 8; break;
 			}
 		}
 		else			// I-format instruction
@@ -114,7 +116,7 @@ public class ExecutionStage extends Stage{
 	 * @param source2 the second source to ALU unit
 	 * @param control the ALU selector
 	 */
-	public void ALU(int source1, int source2, int control)
+	public void ALU(int source1, int source2, int control, int shmt)
 	{
 		int ALUResult = 0, zeroFlag = 0;
 
@@ -126,8 +128,9 @@ public class ExecutionStage extends Stage{
 			case 2: ALUResult = source1 + source2; break;
 			case 6: ALUResult = source1 - source2; break;
 			case 7: ALUResult = (source1 < source2) ? 1 : 0; break;
+			case 8: ALUResult = (source1 << shmt); break;
 		}
-
+			
 		// 2. Assign the value of the zero flag
 		if(ALUResult == 0)
 			zeroFlag = 1;
