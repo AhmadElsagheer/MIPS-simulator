@@ -56,6 +56,7 @@ public class InstructionDecodeStage extends Stage{
 			
 			// Set Next Instruction for Instruction Fetch/Decode/Execution
 			simulator.getIFtoID().selfUpdate();
+			simulator.getInstructionFetchStage().PC=simulator.getInstructionFetchStage().tmpPC;
 			simulator.setInstructionNumber(0, simulator.getInstructionNumber(0));
 			simulator.setInstructionNumber(1, simulator.getInstructionNumber(1));
 			simulator.setInstructionNumber(2, Simulator.NOP);

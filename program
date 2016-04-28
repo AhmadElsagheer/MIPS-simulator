@@ -1,7 +1,31 @@
-addi $t0 $0 5
-sw $t0 20($0)
+addi $t0 $0 16
+addi $t1 $0 0
+addi $t2 $0 10
 
-lw $t6 20($0)
-add $t5 $t5 $t6
-sw $t5 80($0)
+beq $t1 $t2 4
+sw $t1 0($t0)
+addi $t1 $t1 1
+addi $t0 $t0 4
+beq $0 $0 -5
 
+
+addi $t1 $0 1
+addi $t2 $0 11
+addi $t3 $0 64
+
+beq $t1 $t2 13
+addi $t4 $0 0
+addi $t5 $0 16
+addi $t6 $0 0
+
+beq $t6 $t1 5
+lw $s0 0($t5)
+addi $t5 $t5 4
+add $t4 $t4 $s0
+addi $t6 $t6 1
+beq $t0 $t0 -6
+
+sw $t4 0($t3)
+addi $t3 $t3 4
+addi $t1 $t1 1
+beq $0 $0 -14

@@ -4,7 +4,8 @@ import controller.Simulator;
 
 public class InstructionFetchStage extends Stage{
 
-	private int PC;
+	 int PC;
+	int tmpPC;
 	private int PCWrite;
 	private boolean branchNext;
 
@@ -16,6 +17,7 @@ public class InstructionFetchStage extends Stage{
 	{
 		super(simulator);
 		PC = 0;
+		tmpPC=0;
 		PCWrite = 1;
 	}
 
@@ -33,21 +35,24 @@ public class InstructionFetchStage extends Stage{
 		boolean tmpBranchNext;
 		//Read next instruction from instruction memory
 		int instruction = simulator.getInstructionMemory().getInstruction(PC);
+		System.out.println(PC + " "+instruction);
 		//Increment PC or check PCsrc flag
 		int branch = simulator.getExtoMem().getRegister("Branch").getValue();
 		int zero = simulator.getExtoMem().getRegister("Zero").getValue();
 		if((branch & zero) == 0)
 			tmpBranchNext = false;
-		else
+		else{
 			tmpBranchNext = true;
-			
+			PC = simulator.getExtoMem().getRegister("BranchAddress").getValue();
+		}
+
 		if(!branchNext && simulator.getInstructionNumber(0) == Simulator.EMPTY)
 		{
 			simulator.setInstructionNumber(1, Simulator.EMPTY);
 			branchNext = tmpBranchNext;
 			return;
 		}
-		
+
 		if(branchNext || PCWrite == 1)
 		{
 			// Set Next Instruction for Instruction Decode
@@ -55,14 +60,14 @@ public class InstructionFetchStage extends Stage{
 
 			//Send next instruction to pipeline
 			simulator.getIFtoID().setRegister("Instruction", instruction);
-			
-			
+
+			tmpPC = PC;
 			if((branch & zero) == 0)
 				PC = PC + 4;
 			else
 				PC =  simulator.getExtoMem().getRegister("BranchAddress").getValue();
-		
-			
+
+
 			//Send new PC to pipeline
 			simulator.getIFtoID().setRegister("PC", PC);
 
@@ -74,10 +79,31 @@ public class InstructionFetchStage extends Stage{
 		}
 		else
 		{
-			PCWrite = 1;
 			//PC = PC - 4;
-			simulator.setInstructionNumber(0, PC/4);
-			simulator.setInstructionNumber(1, simulator.getInstructionNumber(0));
+			// Set Next Instruction for Instruction Decode
+			simulator.setInstructionNumber(1, PC/4);
+
+			//Send next instruction to pipeline
+			simulator.getIFtoID().setRegister("Instruction", instruction);
+
+
+
+
+			//Send new PC to pipeline
+			simulator.getIFtoID().setRegister("PC", PC);
+
+			// Set Next Instruction for Instruction Fetch (Not Final)
+
+			PCWrite = 1;
+			tmpPC=PC;
+			PC = PC + 4;
+			if(PC/4 < simulator.getInstructionMemory().getNumberOfInstructions())
+				simulator.setInstructionNumber(0, PC/4);
+			else
+				simulator.setInstructionNumber(0, Simulator.EMPTY);
+			
+//			simulator.setInstructionNumber(1, simulator.getInstructionNumber(0));
+			
 		}
 		branchNext = tmpBranchNext;
 	}
