@@ -6,6 +6,7 @@ public class InstructionFetchStage extends Stage{
 
 	private int PC;
 	private int PCWrite;
+	private boolean branchNext;
 
 	/**
 	 * Constructs a new instruction fetch stage.
@@ -29,29 +30,39 @@ public class InstructionFetchStage extends Stage{
 	 */
 	public void run()
 	{
-		if(simulator.getInstructionNumber(0) == Simulator.EMPTY)
+		boolean tmpBranchNext;
+		//Read next instruction from instruction memory
+		int instruction = simulator.getInstructionMemory().getInstruction(PC);
+		//Increment PC or check PCsrc flag
+		int branch = simulator.getExtoMem().getRegister("Branch").getValue();
+		int zero = simulator.getExtoMem().getRegister("Zero").getValue();
+		if((branch & zero) == 0)
+			tmpBranchNext = false;
+		else
+			tmpBranchNext = true;
+			
+		if(!branchNext && simulator.getInstructionNumber(0) == Simulator.EMPTY)
 		{
 			simulator.setInstructionNumber(1, Simulator.EMPTY);
+			branchNext = tmpBranchNext;
 			return;
 		}
-		if(PCWrite == 1)
+		
+		if(branchNext || PCWrite == 1)
 		{
 			// Set Next Instruction for Instruction Decode
 			simulator.setInstructionNumber(1, PC/4);
 
-			//Read next instruction from instruction memory
-			int instruction = simulator.getInstructionMemory().getInstruction(PC);
-			//Increment PC or check PCsrc flag
-			int branch = simulator.getExtoMem().getRegister("Branch").getValue();
-			int zero = simulator.getExtoMem().getRegister("Zero").getValue();
+			//Send next instruction to pipeline
+			simulator.getIFtoID().setRegister("Instruction", instruction);
+			
+			
 			if((branch & zero) == 0)
 				PC = PC + 4;
 			else
 				PC =  simulator.getExtoMem().getRegister("BranchAddress").getValue();
-
-			//Send next instruction to pipeline
-			simulator.getIFtoID().setRegister("Instruction", instruction);
-
+		
+			
 			//Send new PC to pipeline
 			simulator.getIFtoID().setRegister("PC", PC);
 
@@ -64,8 +75,10 @@ public class InstructionFetchStage extends Stage{
 		else
 		{
 			PCWrite = 1;
+			//PC = PC - 4;
 			simulator.setInstructionNumber(0, PC/4);
 			simulator.setInstructionNumber(1, simulator.getInstructionNumber(0));
 		}
+		branchNext = tmpBranchNext;
 	}
 }

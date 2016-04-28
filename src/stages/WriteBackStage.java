@@ -33,8 +33,7 @@ public class WriteBackStage extends Stage{
 
 			// Handle RAW where read and write occur in the same clock cycle
 			// Fix any falsy read data that should be equal to the value already calculated right away
-			simulator.getInstructionDecodeStage().redoReadRegisters();
-			
+			simulator.getInstructionDecodeStage().redoReadRegisters();			
 		}
 	}
 

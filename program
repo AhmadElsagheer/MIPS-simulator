@@ -1,6 +1,7 @@
-addi $t1, $zero, 3
-addi $t2, $zero, 4
-add $t3, $t1, $t2
-sw $t3, 0($zero)
+addi $t0 $0 5
+sw $t0 20($0)
 
+lw $t6 20($0)
+add $t5 $t5 $t6
+sw $t5 80($0)
 

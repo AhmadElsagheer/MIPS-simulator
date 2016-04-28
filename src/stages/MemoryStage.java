@@ -41,6 +41,28 @@ public class MemoryStage extends Stage{
 
 		// Set Next Instruction for Instruction Fetch
 		if((simulator.getExtoMem().getRegister("Branch").getValue() & simulator.getExtoMem().getRegister("Zero").getValue()) == 1)
-			simulator.setInstructionNumber(0, simulator.getExtoMem().getRegister("BranchAddress").getValue()/4);
+		{
+			// Stall in case of branch
+			// 1. Clear IF/ID for next instruction
+			simulator.getIFtoID().setRegister("Instruction", 0);
+			simulator.getIFtoID().setRegister("PC", 0);
+			
+			// 2. Clear ID/EX for next instruction
+			simulator.getIDtoEx().setRegister("MemWrite", 0);
+			simulator.getIDtoEx().setRegister("MemRead", 0);
+			simulator.getIDtoEx().setRegister("Branch", 0);
+			simulator.getIDtoEx().setRegister("RegWrite", 0);
+			
+			// 3. Clear EX/MEM for next instruction
+			simulator.getExtoMem().setRegister("MemWrite", 0);
+			simulator.getExtoMem().setRegister("MemRead", 0);
+			simulator.getExtoMem().setRegister("Branch", 0);
+			simulator.getExtoMem().setRegister("RegWrite", 0);
+			
+			simulator.setInstructionNumber(1, Simulator.NOP);
+			simulator.setInstructionNumber(2, Simulator.NOP);
+			simulator.setInstructionNumber(3, Simulator.NOP);			
+		}
+		
 	}	
 }

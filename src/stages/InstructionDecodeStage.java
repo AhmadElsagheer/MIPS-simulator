@@ -6,7 +6,7 @@ import units.RegisterFile;
 
 public class InstructionDecodeStage extends Stage{
 
-	private boolean acceptRedoReadRegisters;
+	private boolean isEmptyInstruction;
 	
 	/**
 	 * Constructs a new instruction decode stage.
@@ -23,12 +23,13 @@ public class InstructionDecodeStage extends Stage{
 	 */
 	public void run() 
 	{
-		acceptRedoReadRegisters = false;
-		if(simulator.getInstructionNumber(1) == Simulator.EMPTY)
+		isEmptyInstruction = simulator.getInstructionNumber(1) == Simulator.EMPTY;
+		if(isEmptyInstruction)
 		{
 			simulator.setInstructionNumber(2, Simulator.EMPTY);
 			return;
 		}
+		
 		
 		// get instruction from previous pipeline.
 		Register instruction = simulator.getIFtoID().getRegister("Instruction");
@@ -54,10 +55,10 @@ public class InstructionDecodeStage extends Stage{
 			simulator.getInstructionFetchStage().setPCWrite(0);
 			
 			// Set Next Instruction for Instruction Fetch/Decode/Execution
+			simulator.getIFtoID().selfUpdate();
 			simulator.setInstructionNumber(0, simulator.getInstructionNumber(0));
 			simulator.setInstructionNumber(1, simulator.getInstructionNumber(1));
 			simulator.setInstructionNumber(2, Simulator.NOP);
-			simulator.getIFtoID().selfUpdate();
 		}
 		else
 		{
@@ -74,8 +75,6 @@ public class InstructionDecodeStage extends Stage{
 			
 			// Set Next Instruction for Execution
 			simulator.setInstructionNumber(2, simulator.getInstructionNumber(1));
-			
-			acceptRedoReadRegisters = true;
 		}
 	}
 	
@@ -85,7 +84,7 @@ public class InstructionDecodeStage extends Stage{
 	 */
 	public void redoReadRegisters()
 	{
-		if(!acceptRedoReadRegisters)
+		if(isEmptyInstruction)
 			return;
 		Register instruction = simulator.getIFtoID().getRegister("Instruction");
 		RegisterFile registerFile = simulator.getRegisterFile();
@@ -121,16 +120,15 @@ public class InstructionDecodeStage extends Stage{
 		int ALUSrc = 0;
 		int RegWrite = 0;
 		int ALUOp = 0;
-
 		switch(opcode)
 		{
-		case 0:  ALUOp = 1 + (RegDst = RegWrite = 1); break;				// R-format instructions
-		case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
-		case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
-		case 4:  Branch = ALUOp = 1; break;									// BEQ instruction
-		//TODO: ALUOp is assumed to be 00 the same as LW/SW, need to find the exact value for ADDI instruction
-		case 8:  RegWrite = ALUSrc = 1; break;				// ADDI
-		default: ; //TODO: missing instructions
+			case 0:  ALUOp = 1 + (RegDst = RegWrite = 1); break;				// R-format instructions
+			case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
+			case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
+			case 4:  Branch = ALUOp = 1; break;									// BEQ instruction
+			//TODO: ALUOp is assumed to be 00 the same as LW/SW, need to find the exact value for ADDI instruction
+			case 8:  RegWrite = ALUSrc = 1; break;				// ADDI
+			default: ; //TODO: missing instructions
 		}
 
 		simulator.getIDtoEx().setRegister("RegDst", RegDst);

@@ -61,10 +61,8 @@ public class ExecutionStage extends Stage{
 					readData2 	= simulator.getMemtoWb().getRegister("MemToReg").getValue() == 0 
 								? simulator.getMemtoWb().getRegister("ALUResult").getValue() 
 								: simulator.getMemtoWb().getRegister("MemoryOutput").getValue();
-		System.out.println("[DEBUGGING] Read Data 2 = " + readData2);
 		// 2. ALU Execution
 		ALU(readData1, ALUSrc == 1 ? immediateValue : readData2, ALUControl(funct, ALUOp));		
-		
 		// 3. Write to next pipeline register	
 		ExtoMem.setRegister("BranchAddress", PC + (immediateValue << 2));
 		ExtoMem.setRegister("Destination", regDst == 0 ? destination1 : destination2);	
@@ -74,6 +72,7 @@ public class ExecutionStage extends Stage{
 		ExtoMem.setRegister("MemRead", IDtoEx.getRegister("MemRead").getValue());
 		ExtoMem.setRegister("MemWrite", IDtoEx.getRegister("MemWrite").getValue());
 		ExtoMem.setRegister("ReadData2", readData2);
+		
 		
 		// Set Next Instruction for Memory
 		simulator.setInstructionNumber(3, simulator.getInstructionNumber(2));
@@ -117,7 +116,6 @@ public class ExecutionStage extends Stage{
 	 */
 	public void ALU(int source1, int source2, int control)
 	{
-		System.out.println("[DEBUGGING] Control = " + control);
 		int ALUResult = 0, zeroFlag = 0;
 
 		// 1. Perform the operation
@@ -136,5 +134,6 @@ public class ExecutionStage extends Stage{
 		// 3. Set the registers values in the next pipeline register
 		simulator.getExtoMem().setRegister("ALUResult", ALUResult);
 		simulator.getExtoMem().setRegister("Zero", zeroFlag);
+		
 	}		
 }
