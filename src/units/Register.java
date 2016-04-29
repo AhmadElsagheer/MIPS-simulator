@@ -78,6 +78,6 @@ public class Register {
 			r = "0" + r;
 		if(name != null)
 			r = name + ": " + r;
-		return r;
+		return r + " (DEC = "+value+", HEX = "+ Integer.toHexString(value) +")";
 	}
 }

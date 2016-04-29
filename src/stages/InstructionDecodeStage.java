@@ -7,6 +7,7 @@ import units.RegisterFile;
 public class InstructionDecodeStage extends Stage{
 
 	private boolean isEmptyInstruction;
+	private boolean isJumpInstruction;
 	
 	/**
 	 * Constructs a new instruction decode stage.
@@ -23,6 +24,7 @@ public class InstructionDecodeStage extends Stage{
 	 */
 	public void run() 
 	{
+		isJumpInstruction = false;
 		isEmptyInstruction = simulator.getInstructionNumber(1) == Simulator.EMPTY;
 		if(isEmptyInstruction)
 		{
@@ -65,7 +67,6 @@ public class InstructionDecodeStage extends Stage{
 		}
 		else
 		{
-			writeControlFlags(opcode, funct);
 
 			// write to next pipeline
 			simulator.getIDtoEx().setRegister("PC", simulator.getIFtoID().getRegister("PC").getValue());
@@ -76,6 +77,8 @@ public class InstructionDecodeStage extends Stage{
 			simulator.getIDtoEx().setRegister("Destination2", destination2);
 			simulator.getIDtoEx().setRegister("rs", readRegister1);
 			
+			writeControlFlags(opcode, funct, immediateValue);
+
 			// Set Next Instruction for Execution
 			simulator.setInstructionNumber(2, simulator.getInstructionNumber(1));
 		}
@@ -87,7 +90,7 @@ public class InstructionDecodeStage extends Stage{
 	 */
 	public void redoReadRegisters()
 	{
-		if(isEmptyInstruction)
+		if(isEmptyInstruction || isJumpInstruction)
 			return;
 		Register instruction = simulator.getIFtoID().getRegister("Instruction");
 		RegisterFile registerFile = simulator.getRegisterFile();
@@ -113,7 +116,7 @@ public class InstructionDecodeStage extends Stage{
 	 * Generates control signals and writes them to the next pipeline register.
 	 * @param opcode the opcode of the instruction
 	 */
-	public void writeControlFlags(int opcode, int funct)
+	public void writeControlFlags(int opcode, int funct, int immediateValue)
 	{	
 		int RegDst = 0;
 		int Branch = 0;
@@ -132,9 +135,15 @@ public class InstructionDecodeStage extends Stage{
 			case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
 			case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
 			case 4:  Branch = ALUOp = 1; break;									// BEQ instruction
+//			case 5:  Branch = ALUOp = 1; break;									// BNE instruction
 			//TODO: ALUOp is assumed to be 00 the same as LW/SW, need to find the exact value for ADDI instruction
 			case 8:  RegWrite = ALUSrc = 1; break;				// ADDI
-			default: ; //TODO: missing instructions
+			case 2:	 Branch = ALUOp = 1; isJumpInstruction = true; 				//J instruction
+					 simulator.getIDtoEx().setRegister("ReadData1", 0);
+					 simulator.getIDtoEx().setRegister("ReadData2", 0);
+					 simulator.getIDtoEx().setRegister("PC", simulator.getIFtoID().getRegister("PC").getValue() & (15<<26));
+					 simulator.getIDtoEx().setRegister("ImmediateValue", immediateValue);
+			break;									
 		}
 
 		simulator.getIDtoEx().setRegister("RegDst", RegDst);

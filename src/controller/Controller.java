@@ -30,6 +30,28 @@ public class Controller {
 	 */
 	public Parser getParser() { return parser; }
 	
+	private void initializeDataMemory(Scanner sc)
+	{
+		while(true)
+		{
+			String s = sc.next();
+			if(s.equals("finished"))
+				return;
+			this.getSimulator().getDataMemory().write(Integer.parseInt(s), sc.nextInt());
+		}
+	}
+	
+	public void initializeRegisterFile(Scanner sc)
+	{
+		while(true)
+		{
+			String s = sc.next();
+			if(s.equals("finished"))
+				return;
+			this.getSimulator().getRegisterFile().writeRegister(this.getParser().getRegisterNumber(s), sc.nextInt());
+		}
+	}
+	
 	/**
 	 * Main program. 
 	 * It parses the assembly code to machine language and runs the MIPS simulator
@@ -57,6 +79,18 @@ public class Controller {
 				System.out.println("Error: " + e.getMessage());
 				continue;
 			}
+			
+			System.out.println("Initial data memory values.");
+			System.out.println("===========================");
+			System.out.println("Enter the memory address and the value separated by a space on a single line.\nWhen you finish, write \'finished\' on a single line");
+			controller.initializeDataMemory(sc);
+			
+			System.out.println("Initial register file values.");
+			System.out.println("===========================");
+			System.out.println("Enter the register name and the value separated by a space on a single line.\nWhen you finish, write \'finished\' on a single line");
+			controller.initializeRegisterFile(sc);
+			
+			
 			System.out.print("Choose one of the following options => R (run), E (exit): ");
 			if(sc.next().toUpperCase().charAt(0) == 'R')
 				controller.getSimulator().run();
