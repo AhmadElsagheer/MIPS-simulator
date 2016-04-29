@@ -189,6 +189,7 @@ public class Simulator {
 		for(int i = 0; i < 5; ++i)
 			if(instructionsNumbers[i] >= 0)
 				System.out.printf("Instruction %d %s\n", instructionsNumbers[i] + 1, instructionAction[i]);
+		System.out.printf("PCSrc = %d\n", instructionFetchStage.getPCSrc());
 		System.out.println("\nPipeline Registers\n^^^^^^^^^^^^^^^^^^");
 		System.out.printf("Pipepline IF/ID\n***************\n%s================================================\n", IFtoID);
 		System.out.printf("Pipepline ID/EX\n***************\n%s================================================\n", IDtoEx);

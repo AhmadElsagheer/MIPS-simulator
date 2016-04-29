@@ -4,10 +4,10 @@ import controller.Simulator;
 
 public class InstructionFetchStage extends Stage{
 
-	 int PC;
+	int PC;
 	int tmpPC;
 	private int PCWrite;
-	private boolean branchNext;
+	private int PCSrc;
 
 	/**
 	 * Constructs a new instruction fetch stage.
@@ -31,33 +31,42 @@ public class InstructionFetchStage extends Stage{
 		this.PCWrite = canFetch;
 	}
 
+	/**
+	 * Gets the value of PCSrc
+	 * @return the value of PCSrc
+	 */
+	public int getPCSrc()
+	{
+		return PCSrc;
+	}
+	
 	@Override
 	/**
 	 * Runs the instruction fetch stage
 	 */
 	public void run()
 	{
-		boolean tmpBranchNext;
+		int tmpPCSrc;
 		//Read next instruction from instruction memory
 		int instruction = simulator.getInstructionMemory().getInstruction(PC);
 		//Increment PC or check PCsrc flag
 		int branch = simulator.getExtoMem().getRegister("Branch").getValue();
 		int zero = simulator.getExtoMem().getRegister("Zero").getValue();
 		if((branch & zero) == 0)
-			tmpBranchNext = false;
+			tmpPCSrc = 0;
 		else{
-			tmpBranchNext = true;
+			tmpPCSrc = 1;
 			PC = simulator.getExtoMem().getRegister("BranchAddress").getValue();
 		}
 
-		if(!branchNext && simulator.getInstructionNumber(0) == Simulator.EMPTY)
+		if(PCSrc == 0 && simulator.getInstructionNumber(0) == Simulator.EMPTY)
 		{
 			simulator.setInstructionNumber(1, Simulator.EMPTY);
-			branchNext = tmpBranchNext;
+			PCSrc = tmpPCSrc;
 			return;
 		}
 
-		if(branchNext || PCWrite == 1)
+		if(PCSrc == 1 || PCWrite == 1)
 		{
 			// Set Next Instruction for Instruction Decode
 			simulator.setInstructionNumber(1, PC/4);
@@ -103,6 +112,6 @@ public class InstructionFetchStage extends Stage{
 			else
 				simulator.setInstructionNumber(0, Simulator.EMPTY);	
 		}
-		branchNext = tmpBranchNext;
+		PCSrc = tmpPCSrc;
 	}
 }
