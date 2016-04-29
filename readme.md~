@@ -37,4 +37,3 @@ components (register file, memories, and pipeline registers) and all of its cont
 - Program file must be present within the project folder. When running the simulation, you wil be asked to enter its name.
 - Any initialization for the memory or register file contents can be added in the console afterwards.
 - The simulator shows the content of the pipeline registers and which instructions are being executed and at which stages in each clock cycle.
-
