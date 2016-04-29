@@ -89,6 +89,9 @@ public class Simulator {
 			// Update instructions numbers
 			updateInstructionNumbers();
 		}
+		System.out.println("##############################################\n");
+		System.out.printf("Register File\n^^^^^^^^^^^^^\n%s==============================================\n", registerFile);
+		System.out.printf("Data Memory\n^^^^^^^^^^^\n%s\n", dataMemory);
 		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 		System.out.println("               End of Program");
 		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
@@ -166,8 +169,5 @@ public class Simulator {
 		System.out.printf("Pipepline ID/EX\n***************\n%s================================================\n", IDtoEx);
 		System.out.printf("Pipepline EX/MEM\n****************\n%s================================================\n", ExtoMem);
 		System.out.printf("Pipepline MEM/WB\n****************\n%s================================================\n", MemtoWb);
-//		
-		System.out.printf("Register File\n^^^^^^^^^^^^^\n%s==============================================\n", registerFile);
-		System.out.printf("Data Memory\n^^^^^^^^^^^\n%s\n", dataMemory);
 	}
 }

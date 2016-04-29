@@ -43,6 +43,11 @@ public class Parser {
 			simulator.getRegisterFile().readRegister(entry.getValue()).setName(entry.getKey());
 	}
 	
+	public int getRegisterNumber(String name)
+	{
+		return registerMap.get(name);
+	}
+	
 	/**
 	 * Initializes the register map with registers sharing the same symbol
 	 * @param symbol the common symbol among registers
