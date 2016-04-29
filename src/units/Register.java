@@ -71,6 +71,9 @@ public class Register {
 		value = 0;
 	}
 	
+	/**
+	 * Returns a String representation of the register
+	 */
 	public String toString()
 	{
 		String r = Integer.toBinaryString(value);

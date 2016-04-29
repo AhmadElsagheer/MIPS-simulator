@@ -121,16 +121,27 @@ public class Simulator {
 
 	public WriteBackStage getWriteBackStage() { return writeBackStage; }
 	
-	public int getInstructionNumber(int stageID)
-	{
-		return instructionsNumbers[stageID];
-	}
+	/**
+	 * Gets the instruction number of a certain stage in the current clock cycle
+	 * @param stageID the id of the stage to get its current instruction number
+	 * @return the instruction number of the specified stage
+	 */
+	public int getInstructionNumber(int stageID) { return instructionsNumbers[stageID]; }
 	
+	/**
+	 * Sets the instruction number of a certain stage for the next clock cycle
+	 * @param stageID the id of the stage to set its next instruction
+	 * @param instructionNumber the instruction number to be set
+	 */
 	public void setInstructionNumber(int stageID, int instructionNumber)
 	{
 		tmpInstructionsNumbers[stageID] = instructionNumber;
 	}
 	
+	/**
+	 * Updates the instruction numbers of all stages.
+	 * This method is called when moving to a new clock cycle.
+	 */
 	public void updateInstructionNumbers()
 	{
 		for(int i = 0; i < 5; ++i)
@@ -140,6 +151,10 @@ public class Simulator {
 		}
 	}
 	
+	/**
+	 * Updates the values of the pipeline registers.
+	 * This method is called when moving to a new clock cycle.
+	 */
 	private void updatePipelines()
 	{
 		IFtoID.update();
@@ -148,6 +163,10 @@ public class Simulator {
 		MemtoWb.update();
 	}
 	
+	/**
+	 * Checks wether the processor is executing an instruction in any of its stages.
+	 * @return
+	 */
 	private boolean isBusy()
 	{
 		for(int instructionNumber: instructionsNumbers)
@@ -156,6 +175,12 @@ public class Simulator {
 		return false;
 	}
 	
+	/**
+	 * Prints the clock cycle information including which instructions are being
+	 * processed and in which stages and the values of the pipeline registers 
+	 * after running this clock cycle.
+	 * @param clockCycle the number of the clock cycle to be printed.
+	 */
 	private void print(int clockCycle)
 	{
 		if(clockCycle > 1)
@@ -164,6 +189,7 @@ public class Simulator {
 		for(int i = 0; i < 5; ++i)
 			if(instructionsNumbers[i] >= 0)
 				System.out.printf("Instruction %d %s\n", instructionsNumbers[i] + 1, instructionAction[i]);
+		System.out.printf("PCSrc = %d\n", instructionFetchStage.getPCSrc());
 		System.out.println("\nPipeline Registers\n^^^^^^^^^^^^^^^^^^");
 		System.out.printf("Pipepline IF/ID\n***************\n%s================================================\n", IFtoID);
 		System.out.printf("Pipepline ID/EX\n***************\n%s================================================\n", IDtoEx);

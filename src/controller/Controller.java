@@ -30,6 +30,10 @@ public class Controller {
 	 */
 	public Parser getParser() { return parser; }
 	
+	/**
+	 * Initializes the data memory with inital values taken from the input
+	 * @param sc the scanner from which the input is taken
+	 */
 	private void initializeDataMemory(Scanner sc)
 	{
 		while(true)
@@ -41,6 +45,10 @@ public class Controller {
 		}
 	}
 	
+	/**
+	 * Initializes the register file with inital values taken from the input
+	 * @param sc the scanner from which the input is taken
+	 */
 	public void initializeRegisterFile(Scanner sc)
 	{
 		while(true)

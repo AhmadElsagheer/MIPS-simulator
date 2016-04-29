@@ -34,6 +34,9 @@ public class RegisterFile {
 		registers[index].setValue(value);
 	}
 	
+	/**
+	 * Returns a string representation of the register file
+	 */
 	public String toString()
 	{
 		String r = "";

@@ -136,7 +136,6 @@ public class ExecutionStage extends Stage{
 			zeroFlag = 1;
 		// 3. Set the registers values in the next pipeline register
 		simulator.getExtoMem().setRegister("ALUResult", ALUResult);
-		simulator.getExtoMem().setRegister("Zero", zeroFlag);
-		
+		simulator.getExtoMem().setRegister("Zero", zeroFlag);	
 	}		
 }
