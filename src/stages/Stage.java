@@ -19,5 +19,4 @@ public abstract class Stage {
 	 * Runs the stage
 	 */
 	public abstract void run();
-	
 }

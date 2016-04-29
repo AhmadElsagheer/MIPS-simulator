@@ -37,12 +37,21 @@ public class Parser {
 		initializeRegisterMap('t', 2, 8, 24); initializeRegisterMap('k', 2, 0, 26);
 	}
 	
+	/**
+	 * Sets the names of the registers in the register file to be used in printing.
+	 * @param simulator the simulator containing the register file
+	 */
 	public void setRegistersNames(Simulator simulator)
 	{
 		for(Entry<String, Integer> entry: registerMap.entrySet())
 			simulator.getRegisterFile().readRegister(entry.getValue()).setName(entry.getKey());
 	}
 	
+	/**
+	 * Gets the index of the register in the register file.
+	 * @param name the name of the register to get its index
+	 * @return the index of the register
+	 */
 	public int getRegisterNumber(String name)
 	{
 		return registerMap.get(name);

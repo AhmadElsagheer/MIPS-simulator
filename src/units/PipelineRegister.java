@@ -113,12 +113,19 @@ public class PipelineRegister {
 		}
 	}
 	
+	/**
+	 * Updates the pipeline register so it will contain the same values
+	 * that were present when the last clock cycle finished.
+	 */
 	public void selfUpdate()
 	{
 		for(Entry<String, Register> entry: registers.entrySet())
 			setRegister(entry.getKey(), entry.getValue().getValue());
 	}
 	
+	/**
+	 * Returns a string representation of the pipeline register
+	 */
 	public String toString()
 	{
 		String r = "";

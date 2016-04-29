@@ -135,8 +135,6 @@ public class InstructionDecodeStage extends Stage{
 			case 35: MemRead = ALUSrc = RegWrite = MemToReg = 1; break;			// LW instruction
 			case 43: MemWrite = ALUSrc = 1; break;								// SW instruction
 			case 4:  Branch = ALUOp = 1; break;									// BEQ instruction
-//			case 5:  Branch = ALUOp = 1; break;									// BNE instruction
-			//TODO: ALUOp is assumed to be 00 the same as LW/SW, need to find the exact value for ADDI instruction
 			case 8:  RegWrite = ALUSrc = 1; break;				// ADDI
 			case 2:	 Branch = ALUOp = 1; isJumpInstruction = true; 				//J instruction
 					 simulator.getIDtoEx().setRegister("ReadData1", 0);

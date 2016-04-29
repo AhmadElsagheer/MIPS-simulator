@@ -20,7 +20,12 @@ public class InstructionFetchStage extends Stage{
 		tmpPC=0;
 		PCWrite = 1;
 	}
-
+	
+	/**
+	 * Sets the value of the PCWrite according to wether the instruction fetch will
+	 * fetch the next instruction or fetch the same instruction again
+	 * @param canFetch a boolean indicating whether to fetch a new instruction or stall
+	 */
 	public void setPCWrite(int canFetch) 
 	{
 		this.PCWrite = canFetch;
@@ -78,7 +83,6 @@ public class InstructionFetchStage extends Stage{
 		}
 		else
 		{
-			//PC = PC - 4;
 			// Set Next Instruction for Instruction Decode
 			simulator.setInstructionNumber(1, PC/4);
 
@@ -86,23 +90,18 @@ public class InstructionFetchStage extends Stage{
 			simulator.getIFtoID().setRegister("Instruction", instruction);
 
 
-
-
 			//Send new PC to pipeline
 			simulator.getIFtoID().setRegister("PC", PC);
 
-			// Set Next Instruction for Instruction Fetch (Not Final)
 
 			PCWrite = 1;
 			tmpPC=PC;
 			PC = PC + 4;
+
 			if(PC/4 < simulator.getInstructionMemory().getNumberOfInstructions())
 				simulator.setInstructionNumber(0, PC/4);
 			else
-				simulator.setInstructionNumber(0, Simulator.EMPTY);
-			
-//			simulator.setInstructionNumber(1, simulator.getInstructionNumber(0));
-			
+				simulator.setInstructionNumber(0, Simulator.EMPTY);	
 		}
 		branchNext = tmpBranchNext;
 	}
